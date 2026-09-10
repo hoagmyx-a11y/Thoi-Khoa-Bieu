@@ -1,289 +1,246 @@
-const D = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"];
-
-const R = [
-  "6:45 – 11:10",
-  "11:30 – 13:45",
-  "13:45 – 14:00",
-  "14:00 – 16:30",
-  "16:30 – 18:00",
-  "18:00 – 18:50",
-  "19:00 – 21:00",
-  "21:00 – 21:45",
-  "21:45 – 23:00",
-  "23:00 – 6:45",
+const DAYS = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"];
+const TAGS = [
+  { key: "school", label: "Trường" },
+  { key: "it", label: "IT" },
+  { key: "van", label: "Văn" },
+  { key: "toan", label: "Toán" },
+  { key: "hoa", label: "Hóa" },
+  { key: "none", label: "Không" },
 ];
 
-const sample = {};
-
-D.forEach(
-  (d) =>
-    (sample[d] = Array(R.length)
-      .fill(null)
-      .map(() => ["—", "", "rest"])),
-);
-
-function set(d, r, t, e, c) {
-  sample[d][r] = [t, e, c];
-}
-
-set("Thứ 2", 0, "Trường", "HTDN · Anh · Lý · Toán · Sử", "school");
-
-set("Thứ 3", 0, "Trường", "Văn · Anh · Toán · Sử · Hóa", "school");
-
-set("Thứ 4", 0, "Trường", "Anh · Hóa · Toán · Tin", "school");
-
-set("Thứ 5", 0, "Trường", "Toán · Văn · CNTK · Hóa", "school");
-
-set("Thứ 6", 0, "Trường", "Lý · CNTK · HTDN", "school");
-
-D.forEach((d) => {
-  set(d, 1, "Ăn trưa + nghỉ", "", "meal");
-  set(d, 2, "Nghỉ / tự học", "", "rest");
-  set(d, 4, "IT", "14:00 – 16:30", "it");
-  set(d, 5, "Nghỉ / tự học", "", "rest");
-  set(d, 6, "Ăn tối + nghỉ", "", "meal");
-  set(d, 7, "Nghỉ", "", "rest");
-  set(d, 9, "Ngủ", "", "sleep");
-});
-
-["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6"].forEach((d) =>
-  set(d, 4, "IT", "14:00 – 16:30", "it"),
-);
-
-set("Thứ 2", 6, "Văn", "19:00 – 21:00", "van");
-
-set("Thứ 6", 6, "Văn", "19:00 – 21:00", "van");
-
-["Thứ 3", "Thứ 5", "Thứ 7"].forEach((d) =>
-  set(d, 6, "Toán", "19:00 – 21:00", "toan"),
-);
-
-["Thứ 2", "Thứ 4", "Chủ nhật"].forEach((d) =>
-  set(d, 8, "Hóa online", "21:45 – 23:00", "hoa"),
-);
-
-set("Thứ 4", 2, "Thể dục", "13:45 – 15:20", "sport");
-
-set("Thứ 6", 2, "Thể dục + GDQP", "13:45 – 17:05", "sport");
-
-let data = JSON.parse(localStorage.getItem("tkb-editable") || "null") || {
-  rows: R,
-  events: sample,
+const DEFAULT_DATA = {
+  title: "Thời Khóa Biểu Tuần",
+  rows: [
+    {
+      time: "6:45 – 11:10",
+      cells: [
+        { text: "Trường\n• HĐTN\n• Anh\n• Lý\n• Toán\n• Sử", tag: "school" },
+        { text: "Trường\n• Văn\n• Toán\n• Sử\n• Hóa", tag: "school" },
+        { text: "Trường\n• Anh\n• Hóa\n• Toán\n• Tin", tag: "school" },
+        { text: "Trường\n• Toán\n• Văn\n• CNTK\n• Hóa", tag: "school" },
+        { text: "Trường\n• Lý\n• CNTK\n• HĐTN", tag: "school" },
+        { text: "Không có tiết sáng", tag: "none" },
+        { text: "—", tag: "none" },
+      ],
+    },
+    {
+      time: "11:10 – 13:45",
+      cells: [
+        { text: "Ăn trưa + nghỉ", tag: "none" },
+        { text: "Ăn trưa + nghỉ", tag: "none" },
+        { text: "Ăn trưa + nghỉ", tag: "none" },
+        { text: "Ăn trưa + nghỉ", tag: "none" },
+        { text: "Ăn trưa + nghỉ", tag: "none" },
+        { text: "Nghỉ / về cá nhân", tag: "none" },
+        { text: "Nghỉ / việc cá nhân", tag: "none" },
+      ],
+    },
+    {
+      time: "13:45 – 15:20",
+      cells: [
+        { text: "—", tag: "none" },
+        { text: "—", tag: "none" },
+        { text: "Thể dục (Trái buổi)", tag: "none" },
+        { text: "—", tag: "none" },
+        { text: "Thể dục + GDQP", tag: "none" },
+        { text: "—", tag: "none" },
+        { text: "—", tag: "none" },
+      ],
+    },
+    {
+      time: "16:30 – 17:05",
+      cells: [
+        { text: "IT\n14:00 – 16:30", tag: "it" },
+        { text: "IT\n14:00 – 16:30", tag: "it" },
+        { text: "Nghỉ / tự học", tag: "none" },
+        { text: "IT\n14:00 – 16:30", tag: "it" },
+        { text: "IT\n14:00 – 16:30", tag: "it" },
+        { text: "IT\n14:00 – 16:30", tag: "it" },
+        { text: "IT\n14:00 – 16:30", tag: "it" },
+      ],
+    },
+    {
+      time: "19:00 – 21:00",
+      cells: [
+        { text: "Văn\n19:00 – 21:00", tag: "van" },
+        { text: "Toán\n19:00 – 21:00", tag: "toan" },
+        { text: "—", tag: "none" },
+        { text: "Toán\n19:00 – 21:00", tag: "toan" },
+        { text: "Văn\n19:00 – 21:00", tag: "van" },
+        { text: "Toán\n19:00 – 21:00", tag: "toan" },
+        { text: "—", tag: "none" },
+      ],
+    },
+    {
+      time: "21:45 – 23:00",
+      cells: [
+        { text: "Hóa online\n21:45 – 23:00", tag: "hoa" },
+        { text: "Nghỉ", tag: "none" },
+        { text: "Hóa online\n21:45 – 23:00", tag: "hoa" },
+        { text: "Nghỉ", tag: "none" },
+        { text: "Nghỉ", tag: "none" },
+        { text: "Nghỉ", tag: "none" },
+        { text: "Hóa online\n21:45 – 23:00", tag: "hoa" },
+      ],
+    },
+    {
+      time: "23:00 – 6:45",
+      cells: [
+        { text: "Ngủ", tag: "none" },
+        { text: "Ngủ", tag: "none" },
+        { text: "Ngủ", tag: "none" },
+        { text: "Ngủ", tag: "none" },
+        { text: "Ngủ", tag: "none" },
+        { text: "Ngủ", tag: "none" },
+        { text: "Ngủ", tag: "none" },
+      ],
+    },
+  ],
 };
 
-let cur = null;
+let data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+const STORAGE_KEY = "weekly-schedule-v1";
 
-function save() {
-  localStorage.setItem("tkb-editable", JSON.stringify(data));
-
+async function loadData() {
+  try {
+    const res = await window.storage.get(STORAGE_KEY, false);
+    if (res && res.value) {
+      data = JSON.parse(res.value);
+    }
+  } catch (e) {
+    // chưa có dữ liệu lưu trước đó, dùng mẫu mặc định
+  }
   render();
 }
 
-function esc(x) {
-  return String(x).replace(
-    /[&<>"']/g,
-    (m) =>
-      ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#39;",
-      })[m],
-  );
+let saveTimer = null;
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  const statusEl = document.getElementById("statusMsg");
+  statusEl.textContent = "Đang lưu...";
+  saveTimer = setTimeout(async () => {
+    try {
+      await window.storage.set(STORAGE_KEY, JSON.stringify(data), false);
+      statusEl.textContent = "Đã lưu ✓";
+      setTimeout(() => {
+        statusEl.textContent = "";
+      }, 1200);
+    } catch (e) {
+      statusEl.textContent = "Không lưu được, thử lại sau.";
+    }
+  }, 500);
 }
 
 function render() {
-  tb.innerHTML = "";
+  document.getElementById("mainTitle").textContent =
+    data.title || "Thời Khóa Biểu Tuần";
 
-  data.rows.forEach((tm, r) => {
-    let tr = document.createElement("tr");
-    let td = document.createElement("td");
+  const headRow = document.getElementById("headRow");
+  headRow.innerHTML = '<th class="time-head">Thời gian</th>';
+  DAYS.forEach((day, i) => {
+    const th = document.createElement("th");
+    th.innerHTML = `<input class="day-input" data-day="${i}" value="${day}" />`;
+    headRow.appendChild(th);
+  });
 
-    td.className = "time";
-    td.textContent = tm;
-    td.ondblclick = () => editRow(r);
+  const body = document.getElementById("bodyRows");
+  body.innerHTML = "";
 
-    tr.appendChild(td);
+  data.rows.forEach((row, rIdx) => {
+    const tr = document.createElement("tr");
 
-    D.forEach((d) => {
-      let c = document.createElement("td");
+    const timeTd = document.createElement("td");
+    timeTd.className = "time-cell";
+    timeTd.innerHTML = `<input data-row="${rIdx}" class="time-input" value="${row.time}" />
+      <div class="row-actions"><button data-del-row="${rIdx}">Xóa dòng</button></div>`;
+    tr.appendChild(timeTd);
 
-      c.className = "cell";
-
-      let e = (data.events[d] || [])[r];
-
-      if (e) {
-        let v = document.createElement("div");
-
-        v.className = "event " + (e[2] || "rest");
-
-        v.innerHTML =
-          "<b>" +
-          esc(e[0]) +
-          "</b>" +
-          (e[1] ? "<small>" + esc(e[1]) + "</small>" : "");
-
-        v.onclick = () => openE(d, r);
-
-        c.appendChild(v);
-      } else {
-        c.textContent = "—";
-        c.onclick = () => openE(d, r);
-      }
-
-      tr.appendChild(c);
+    row.cells.forEach((cell, cIdx) => {
+      const td = document.createElement("td");
+      td.className = `cell tag-${cell.tag}`;
+      const dots = TAGS.map(
+        (t) =>
+          `<span class="tag-dot dot-${t.key} ${cell.tag === t.key ? "active" : ""}" data-row="${rIdx}" data-col="${cIdx}" data-tag="${t.key}" title="${t.label}"></span>`,
+      ).join("");
+      td.innerHTML = `
+        <div class="tag-row">${dots}</div>
+        <textarea data-row="${rIdx}" data-col="${cIdx}" placeholder="Bấm để nhập...">${cell.text}</textarea>
+      `;
+      tr.appendChild(td);
     });
 
-    tb.appendChild(tr);
+    body.appendChild(tr);
+  });
+
+  attachEvents();
+}
+
+function attachEvents() {
+  document.getElementById("mainTitle").oninput = (e) => {
+    data.title = e.target.textContent;
+    scheduleSave();
+  };
+
+  document.querySelectorAll(".day-input").forEach((inp) => {
+    inp.oninput = (e) => {
+      DAYS[+e.target.dataset.day] = e.target.value;
+      scheduleSave();
+    };
+  });
+
+  document.querySelectorAll(".time-input").forEach((inp) => {
+    inp.oninput = (e) => {
+      data.rows[+e.target.dataset.row].time = e.target.value;
+      scheduleSave();
+    };
+  });
+
+  document.querySelectorAll("textarea").forEach((ta) => {
+    ta.oninput = (e) => {
+      const r = +e.target.dataset.row,
+        c = +e.target.dataset.col;
+      data.rows[r].cells[c].text = e.target.value;
+      scheduleSave();
+    };
+  });
+
+  document.querySelectorAll(".tag-dot").forEach((dot) => {
+    dot.onclick = (e) => {
+      const r = +e.target.dataset.row,
+        c = +e.target.dataset.col,
+        tag = e.target.dataset.tag;
+      data.rows[r].cells[c].tag = tag;
+      scheduleSave();
+      render();
+    };
+  });
+
+  document.querySelectorAll("[data-del-row]").forEach((btn) => {
+    btn.onclick = (e) => {
+      const r = +e.target.dataset.delRow;
+      if (data.rows.length <= 1) return;
+      data.rows.splice(r, 1);
+      scheduleSave();
+      render();
+    };
   });
 }
 
-function fill() {
-  day.innerHTML = D.map((x) => `<option>${x}</option>`).join("");
+document.getElementById("addRowBtn").onclick = () => {
+  data.rows.push({
+    time: "Giờ mới",
+    cells: DAYS.map(() => ({ text: "", tag: "none" })),
+  });
+  scheduleSave();
+  render();
+};
 
-  row.innerHTML = data.rows
-    .map((x, i) => `<option value="${i}">${x}</option>`)
-    .join("");
-}
-
-function openE(d, r) {
-  cur = {
-    d,
-    r,
-  };
-
-  fill();
-
-  day.value = d;
-  row.value = r;
-
-  let e = data.events[d]?.[r] || ["", "", "rest"];
-
-  title.value = e[0] || "";
-  etime.value = e[1] || data.rows[r];
-  type.value = e[2] || "rest";
-
-  mt.textContent = "Sửa lịch";
-
-  modal.classList.add("show");
-}
-
-function addEvent() {
-  cur = null;
-
-  fill();
-
-  title.value = "";
-  etime.value = "";
-  type.value = "rest";
-
-  mt.textContent = "Thêm lịch";
-
-  modal.classList.add("show");
-}
-
-function saveE() {
-  let d = day.value;
-  let r = +row.value;
-
-  if (!data.events[d]) {
-    data.events[d] = [];
+document.getElementById("resetBtn").onclick = () => {
+  if (confirm("Đặt lại toàn bộ về mẫu gốc? Mọi chỉnh sửa hiện tại sẽ mất.")) {
+    data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+    scheduleSave();
+    render();
   }
+};
 
-  data.events[d][r] = [title.value || "—", etime.value, type.value];
-
-  closeM();
-  save();
-}
-
-function del() {
-  if (!cur) {
-    return closeM();
-  }
-
-  data.events[cur.d][cur.r] = ["—", "", "rest"];
-
-  closeM();
-  save();
-}
-
-function closeM() {
-  modal.classList.remove("show");
-  cur = null;
-}
-
-function addRow() {
-  let x = prompt("Nhập khung giờ mới, ví dụ 16:30 – 17:00");
-
-  if (!x) return;
-
-  data.rows.push(x);
-
-  D.forEach((d) => data.events[d].push(["—", "", "rest"]));
-
-  save();
-}
-
-function editRow(r) {
-  let x = prompt("Sửa khung giờ:", data.rows[r]);
-
-  if (x) {
-    data.rows[r] = x;
-    save();
-  }
-}
-
-function resetData() {
-  if (confirm("Khôi phục lịch mẫu?")) {
-    data = {
-      rows: [...R],
-      events: structuredClone(sample),
-    };
-
-    save();
-  }
-}
-
-function exportData() {
-  let a = document.createElement("a");
-
-  a.href = URL.createObjectURL(
-    new Blob([JSON.stringify(data, null, 2)], {
-      type: "application/json",
-    }),
-  );
-
-  a.download = "thoi-khoa-bieu.json";
-  a.click();
-}
-
-function importData(e) {
-  let f = e.target.files[0];
-
-  if (!f) return;
-
-  let q = new FileReader();
-
-  q.onload = () => {
-    try {
-      let x = JSON.parse(q.result);
-
-      if (!x.rows || !x.events) {
-        throw 0;
-      }
-
-      data = x;
-
-      save();
-
-      alert("Đã nhập lịch!");
-    } catch {
-      alert("File không hợp lệ");
-    }
-  };
-
-  q.readAsText(f);
-}
-
-render();
+loadData();

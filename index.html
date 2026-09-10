@@ -1,106 +1,46 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Thời khóa biểu tuần</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
+
   <div class="wrap">
-    <header>
-      <h1>THỜI KHÓA BIỂU TUẦN</h1>
-      <p>Học đúng cách · Nghỉ đúng lúc · Phát triển mỗi ngày</p>
+    <header class="hero">
+      <h1 id="mainTitle" contenteditable="true">Thời Khóa Biểu Tuần</h1>
     </header>
-    <div class="tools">
-      <button onclick="addRow()">＋ Thêm khung giờ</button>
-      <button onclick="addEvent()">＋ Thêm lịch</button>
-      <button onclick="resetData()">↻ Khôi phục mẫu</button>
-      <button onclick="exportData()">⬇ XuấtJSON</button>
-      <label>
-        <button>⬆ Nhập JSON</button>
-        <input id="imp" type="file" accept=".json" hidden onchange="importData(event)">
-      </label>
-      <span class="hint">Bấm ô lịch để sửa · sửa giờ bằng cách nhấp đúp vào cột thời gian · tự lưu trên máy</span>
+    <p class="subtitle">Bấm vào bất kỳ ô nào để sửa giờ giấc, môn học — mọi thay đổi tự động được lưu lại.</p>
+
+    <div class="toolbar">
+      <button class="primary" id="addRowBtn">+ Thêm dòng giờ</button>
+      <button class="danger" id="resetBtn">Đặt lại mẫu gốc</button>
     </div>
-    <div class="table">
-      <table>
+
+    <div class="grid-panel">
+      <table id="scheduleTable">
         <thead>
-          <tr>
-            <th>Thời gian</th>
-            <th>Thứ 2</th>
-            <th>Thứ 3</th>
-            <th>Thứ 4</th>
-            <th>Thứ 5</th>
-            <th>Thứ 6</th>
-            <th>Thứ 7</th>
-            <th>Chủ nhật</th>
+          <tr id="headRow">
+            <th class="time-head">Thời gian</th>
           </tr>
         </thead>
-        <tbody id="tb"></tbody>
+        <tbody id="bodyRows"></tbody>
       </table>
     </div>
-    <div class="grid">
-      <section class="panel">
-        <h2>📚 Lịch học thêm</h2>
-        <ul>
-          <li>Văn: T2 + T6 · 19:00–21:00</li>
-          <li>Toán: T3 + T5 + T7 · 19:00–21:00</li>
-          <li>Hóa online: T2 + T4 + CN · 21:45–23:00</li>
-        </ul>
-      </section>
-      <section class="panel">
-        <h2>💻 Lịch IT</h2>
-        <ul>
-          <li>5 buổi/tuần · 14:00–16:30</li>
-          <li>HTML → CSS → JavaScript</li>
-          <li>T2 học mới · T3 học + BT · T5 học mới · T7 thực hành · CN ôn/project</li>
-        </ul>
-      </section>
-      <section class="panel">
-        <h2>⭐ Lưu ý</h2>
-        <ul>
-          <li>Ưu tiên ngủ đủ và nghỉ giữa các phiên.</li>
-          <li>Nếu mệt có thể giảm thời lượng IT.</li>
-          <li>Lịch được lưu bằng localStorage.</li>
-        </ul>
-      </section>
-    </div>
+
+    <div class="status" id="statusMsg"></div>
+    <footer>Dán ảnh chụp bảng này gửi lại bất cứ lúc nào nếu muốn xem lại lịch có hợp lý không 🌙</footer>
   </div>
-  <div class="modal" id="modal">
-    <div class="box">
-      <h2 id="mt">Sửa lịch</h2>
-      <div class="form">
-        <label>Thứ</label>
-        <select id="day"></select>
-        <label>Khung</label>
-        <select id="row"></select>
-        <label>Môn / hoạt động</label>
-        <input id="title" placeholder="VD: IT, Toán, Nghỉ...">
-        <label>Thời gian hiển thị</label>
-        <input id="etime" placeholder="VD: 14:00 – 16:30">
-        <label>Màu</label>
-        <select id="type">
-          <option value="rest">Nghỉ / tự học</option>
-          <option value="school">Trường</option>
-          <option value="it">IT</option>
-          <option value="van">Văn</option>
-          <option value="toan">Toán</option>
-          <option value="hoa">Hóa online</option>
-          <option value="sport">Thể dục / GDQP</option>
-          <option value="meal">Ăn + nghỉ</option>
-          <option value="sleep">Ngủ</option>
-        </select>
-      </div>
-      <div class="actions">
-        <button onclick="del()">Xóa</button>
-        <button onclick="closeM()">Hủy</button>
-        <button onclick="saveE()">Lưu</button>
-      </div>
-    </div>
-  </div>
+
   <script src="script.js"></script>
 </body>
 
